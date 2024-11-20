@@ -1,44 +1,57 @@
+using backend;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000") // Change this to your frontend's URL
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+var repository = new TodoMemoryRepository();
 
-app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 
-var summaries = new[]
+app.MapGet("/todos", () => 
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    var todos = repository.GetAll();
+    return Results.Ok(todos.Any() ? todos : new List<Todo>());
+});
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/todos/{id}", (int id) => 
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+    var todo = repository.GetById(id);
+    return todo is not null ? Results.Ok(todo) : Results.NotFound();
+});
+
+app.MapPost("/todos", (Todo todo) => 
+{
+    repository.Add(todo);
+    return Results.Created($"/todos/{todo.Id}", todo);
+});
+
+app.MapPut("/todos/{id}", (int id, Todo updatedTodo) => 
+{
+    var todo = repository.GetById(id);
+    if (todo is null) return Results.NotFound();
+
+    updatedTodo.Id = id;
+    repository.Update(updatedTodo);
+    return Results.NoContent();
+});
+
+app.MapDelete("/todos/{id}", (int id) => 
+{
+    repository.Remove(id);
+    return Results.NoContent();
+});
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
