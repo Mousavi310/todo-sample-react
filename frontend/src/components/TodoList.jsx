@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGetTodosQuery, useDeleteTodoMutation, useCompleteTodoMutation } from '../rtk/todosApi';
 import { List, Button, Spin } from 'antd';
+import ThemeChanger from './ThemeChanger';
 
 const TodoList = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const TodoList = () => {
   return (
     <div>
       <Button type="primary" onClick={() => navigate('/add')}>Add Todo</Button>
+      <ThemeChanger />
       <List
         itemLayout="horizontal"
         dataSource={todos}

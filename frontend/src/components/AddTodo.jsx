@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAddTodoMutation } from '../rtk/todosApi';
-import { Form, Input, Button, Spin } from 'antd';
+import { Form, Input, Spin } from 'antd';
+import  PrimaryButton from './PrimaryButton'
 
 const AddTodo = () => {
   const [addTodo, { isLoading }] = useAddTodoMutation();
@@ -19,7 +20,7 @@ const AddTodo = () => {
         <Input />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit">Add Todo</Button>
+        <PrimaryButton content={"Add"} />
       </Form.Item>
     </Form>
   );
