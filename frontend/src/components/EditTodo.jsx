@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEditTodoMutation, useGetTodosQuery } from '../rtk/todosApi';
 import { Form, Input, Button, Spin } from 'antd';
+import  CurrentUser  from './CurrentUser';
 
 const EditTodo = () => {
   const { id } = useParams();
@@ -27,14 +28,17 @@ const EditTodo = () => {
   if (!initialValues) return <Spin />;
 
   return (
-    <Form form={form} initialValues={initialValues} onFinish={onFinish}>
-      <Form.Item name="title" label="Title">
-        <Input />
-      </Form.Item>
-      <Form.Item>
-        <Button type="primary" htmlType="submit">Save</Button>
-      </Form.Item>
+    <>
+      <CurrentUser />
+      <Form form={form} initialValues={initialValues} onFinish={onFinish}>
+        <Form.Item name="title" label="Title">
+          <Input />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">Save</Button>
+        </Form.Item>
     </Form>
+    </>
   );
 };
 
